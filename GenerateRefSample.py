@@ -1,8 +1,7 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.cm
-from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
-import pandas as pd, seaborn as sns
+import os
+from functools import partial
+from concurrent.futures import ProcessPoolExecutor
+import numpy as np, pandas as pd
 from astropy.table import Table
 from tqdm import tqdm
 
@@ -28,9 +27,5 @@ def generate_pp_file(pos_file, pp, rp):
     print('Saved idx {}'.format(idx))
     return
 
-from functools import partial
-from concurrent.futures import ProcessPoolExecutor
-from tqdm import tqdm
-
 posterior_files = [p for p in os.listdir(pos_path) if p.startswith('Sample')]
-with ProcessPoolExecutor() as executor: executor.map(partial(generate_pp_file, pos_path=pos_path, ref_path=ref_path), posterior_files)
+with ProcessPoolExecutor() as executor: executor.map(partial(generate_pp_file, pp=pos_path, rp=ref_path), posterior_files)
