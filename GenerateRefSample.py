@@ -39,6 +39,7 @@ if __name__ == '__main__':
     if args.cores == 0: max_workers = max_cores - 1
     else: max_workers = args.cores
 
+    # First, fix the index file, adding the pp_data column mapping the right index to the right file.
     print('Fixing index file...')
     pp_index = Table.read(args.pos_path+'Index_File_posterior.fits').to_pandas()
     decode_column(pp_index, 'FILE_NAME')
