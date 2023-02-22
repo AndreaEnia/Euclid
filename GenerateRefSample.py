@@ -14,17 +14,17 @@ ref_path = '/scratch/astro/andrea.enia/MAMBO_ref_sample/Ref_sample/'
 
 def generate_pp_file(pos_file, pp, rp):
     import os
-    idx = int(pos_file.split('_')[-1].split('.')[0])
-    if os.path.exists(rp+'pp_data_{}.npy'.format(idx)) == True:
-        print('Idx. {} already processed'.format(idx))
+    pf_idx = int(pos_file.split('_')[-1].split('.')[0])
+    if os.path.exists(rp+'pp_data_{}.npy'.format(pf_idx)) == True:
+        print('Idx. {} already processed'.format(pf_idx))
         return
     print('Processing file {}'.format(pos_file))
     sample_posterior = Table.read(pp+pos_file).to_pandas()
     decode_column(sample_posterior, 'OBJECT_ID')
     pp_columns = ['REDSHIFT', 'RED_CURVE_INDEX', 'EB_V', 'LUMINOSITY', 'AGE', 'METALLICITY', 'SFR', 'STELLARMASS', 'TAU']
     temp = [Table.from_pandas(sample_posterior[sample_posterior['OBJECT_ID'] == idx][pp_columns]) for idx in tqdm(sample_posterior['OBJECT_ID'].unique())]
-    np.save(rp+'pp_data_{}.npy'.format(idx), np.array(temp))
-    print('Saved idx {}'.format(idx))
+    np.save(rp+'pp_data_{}.npy'.format(pf_idx), np.array(temp))
+    print('Saved pf_idx {}'.format(pf_idx))
     return
 
 posterior_files = [p for p in os.listdir(pos_path) if p.startswith('Sample')]
