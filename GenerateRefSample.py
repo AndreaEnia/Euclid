@@ -1,6 +1,7 @@
 import argparse
 import os, multiprocessing
 max_cores = multiprocessing.cpu_count()
+import subprocess
 from functools import partial
 from concurrent.futures import ProcessPoolExecutor
 import numpy as np, pandas as pd
