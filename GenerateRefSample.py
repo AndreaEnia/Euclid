@@ -50,7 +50,7 @@ if __name__ == '__main__':
     pp_index['id'] = pp_index['id'].astype('int')
     index_df = pd.DataFrame(np.load(args.ref_path+'index.npy'))
     pp_index = pp_index.reset_index()
-    pp_index = pp.index.rename(columns={'id': 'MAMBO_id', 'index': 'id'})
+    pp_index = pp_index.rename(columns={'id': 'MAMBO_id', 'index': 'id'})
     index_df = pd.merge(index_df, pp_index, on='id', how='outer')
     subprocess.call('mv '+args.ref_path+'index.npy '+args.ref_path+'original_index.npy', shell = True)
     print('Moved old index.npy file to {0}/original_index.npy'.format(args.ref_path))
