@@ -9,14 +9,11 @@ def decode_column(df, colname):
     df[colname] = df[colname].str.decode('utf-8')
     return
 
-pos_path = '/scratch/astro/andrea.enia/MAMBO_ref_sample/posteriors/'
-ref_path = '/scratch/astro/andrea.enia/MAMBO_ref_sample/Ref_sample/'
-
 def generate_pp_file(pos_file, pp, rp):
     import os
     pf_idx = int(pos_file.split('_')[-1].split('.')[0])
     if os.path.exists(rp+'pp_data_{}.npy'.format(pf_idx)) == True:
-        print('Idx. {} already processed'.format(pf_idx))
+        print('Posterior idx. {} already processed'.format(pf_idx))
         return
     print('Processing file {}'.format(pos_file))
     sample_posterior = Table.read(pp+pos_file).to_pandas()
@@ -27,5 +24,21 @@ def generate_pp_file(pos_file, pp, rp):
     print('Saved pf_idx {}'.format(pf_idx))
     return
 
-posterior_files = [p for p in os.listdir(pos_path) if p.startswith('Sample')]
-with ProcessPoolExecutor() as executor: executor.map(partial(generate_pp_file, pp=pos_path, rp=ref_path), posterior_files)
+parser = argparse.ArgumentParser(description='Generate the pp_data_{}.npy reference files for NNPZ.')
+parser.add_argument('--pos_path', type=str, help='Path to the posteriors folder.', required = True)
+parser.add_argument('--ref_path', type=str, help='Path to the reference sample folder.', required = True)
+parser.add_argument('--cores', type=int, default = 0, choices = range(1, max_cores+1), help='The maximum number of cores to use. Default is the maximum number of available cores minus 1.')
+args = parser.parse_args()
+
+if name == '__main__':
+    # Number of cores to use to run everything in parallel.
+    if args.cores == 0: max_workers = max_cores - 1
+    else: max_workers = args.cores
+
+    # Read the posterior files path
+    posterior_files = [p for p in os.listdir(args.pos_path) if p.startswith('Sample')]
+
+    # Process the files in ||.
+    print('Generating the reference sample')
+    with ProcessPoolExecutor(max_workers = max_workers) as executor: executor.map(partial(generate_pp_file, pp=args.pos_path, rp=args.ref_path), posterior_files)
+    print('Reference sample stored in {0}'.format(args.ref_path))
