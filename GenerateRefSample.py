@@ -47,13 +47,15 @@ if __name__ == '__main__':
     index_df = pd.DataFrame(np.load(args.ref_path+'index.npy'))
     index_df = pd.merge(index_df, pp_index, on='id', how='outer')
     subprocess.call('mv '+args.ref_path+'index.npy '+args.ref_path+'original_index.npy', shell = True)
+    print('Moved old index.npy file to {0}/original_index.npy'.format(args.ref_path))
     np.save(args.ref_path+'index.npy', index_df.to_records(index=False))
+    print('Index file stored in {0}/index.npy'.format(args.ref_path))
     print('...done!')
 
     # Read the posterior files path
     posterior_files = [p for p in os.listdir(args.pos_path) if p.startswith('Sample')]
 
     # Process the files in ||.
-    print('Generating the reference sample')
+    print('Generating the reference sample...')
     with ProcessPoolExecutor(max_workers = max_workers) as executor: executor.map(partial(generate_pp_file, pp=args.pos_path, rp=args.ref_path), posterior_files)
     print('Reference sample stored in {0}'.format(args.ref_path))
