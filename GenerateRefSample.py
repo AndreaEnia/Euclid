@@ -31,7 +31,7 @@ parser.add_argument('--ref_path', type=str, help='Path to the reference sample f
 parser.add_argument('--cores', type=int, default = 0, choices = range(1, max_cores+1), help='The maximum number of cores to use. Default is the maximum number of available cores minus 1.')
 args = parser.parse_args()
 
-if name == '__main__':
+if __name__ == '__main__':
     # Number of cores to use to run everything in parallel.
     if args.cores == 0: max_workers = max_cores - 1
     else: max_workers = args.cores
