@@ -36,6 +36,20 @@ if __name__ == '__main__':
     if args.cores == 0: max_workers = max_cores - 1
     else: max_workers = args.cores
 
+    print('Fixing index file...')
+    pp_index = Table.read(args.pos_path+'Index_File_posterior.fits').to_pandas()
+    decode_column(pp_index, 'FILE_NAME')
+    pp_index['pp_file'] = [int(s.split('_')[-1].split('.')[0]) for s in pp_index['FILE_NAME']]
+    pp_index['pp_offset'] = np.array([list(np.arange(len(pp_index[pp_index['pp_file'] == idx]))) for idx in np.unique(pp_index['pp_file'])]).flatten()
+    pp_index = pp_index.rename(columns = {'OBJECT_ID': 'id'})
+    pp_index = pp_index[['id', 'pp_file', 'pp_offset']]
+    pp_index['id'] = pp_index['id'].astype('int')
+    index_df = pd.DataFrame(np.load(args.ref_path+'index.npy'))
+    index_df = pd.merge(index_df, pp_index, on='id', how='outer')
+    subprocess.call('mv '+args.ref_path+'index.npy '+args.ref_path+'original_index.npy', shell = True)
+    np.save(args.ref_path+'index.npy', index_df.to_records(index=False))
+    print('...done!')
+
     # Read the posterior files path
     posterior_files = [p for p in os.listdir(args.pos_path) if p.startswith('Sample')]
 
