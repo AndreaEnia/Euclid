@@ -17,7 +17,8 @@ def generate_pp_file(pos_file, pp, rp):
         return
     print('Processing file {}'.format(pos_file))
     sample_posterior = Table.read(pp+pos_file).to_pandas()
-    decode_column(sample_posterior, 'OBJECT_ID')
+    try: decode_column(sample_posterior, 'OBJECT_ID')
+    except: pass
     pp_columns = ['REDSHIFT', 'RED_CURVE_INDEX', 'EB_V', 'LUMINOSITY', 'AGE', 'METALLICITY', 'SFR', 'STELLARMASS', 'TAU']
     temp = [Table.from_pandas(sample_posterior[sample_posterior['OBJECT_ID'] == idx][pp_columns]) for idx in tqdm(sample_posterior['OBJECT_ID'].unique())]
     np.save(rp+'pp_data_{}.npy'.format(pf_idx), np.array(temp))
