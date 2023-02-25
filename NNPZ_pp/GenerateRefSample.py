@@ -7,6 +7,8 @@ from concurrent.futures import ProcessPoolExecutor
 import numpy as np, pandas as pd
 from astropy.table import Table
 from tqdm import tqdm
+import warnings
+warnings.filterwarnings("ignore")
 
 def decode_column(df, colname):
     df[colname] = df[colname].str.decode('utf-8')
@@ -20,6 +22,11 @@ def generate_pp_file(pos_file, pp, rp):
         return
     print('Processing file {}'.format(pos_file))
     sample_posterior = Table.read(pp+pos_file).to_pandas()
+    # --------------
+    # Log M* and SFR
+    sample_posterior['STELLARMASS'] = np.log10(sample_posterior['STELLARMASS'])
+    sample_posterior['SFR'] = np.log10(sample_posterior['SFR'])
+    # --------------
     try: decode_column(sample_posterior, 'OBJECT_ID')
     except: pass
     pp_columns = ['REDSHIFT', 'RED_CURVE_INDEX', 'EB_V', 'LUMINOSITY', 'AGE', 'METALLICITY', 'SFR', 'STELLARMASS', 'TAU']
