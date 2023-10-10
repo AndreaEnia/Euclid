@@ -23,13 +23,12 @@ def generate_pp_file(pos_file, pp, rp):
     print('Processing file {}'.format(pos_file))
     sample_posterior = Table.read(pp+pos_file).to_pandas()
     # --------------
-    # Log M* and SFR
-    sample_posterior['STELLARMASS'] = np.log10(sample_posterior['STELLARMASS'])
-    sample_posterior['SFR'] = np.log10(sample_posterior['SFR'])
+    # Log M* and SFR ### Those are already logged
+    #sample_posterior['STELLARMASS'] = np.log10(sample_posterior['STELLARMASS'])
+    #sample_posterior['SFR'] = np.log10(sample_posterior['SFR'])
     # --------------
-    try: decode_column(sample_posterior, 'OBJECT_ID')
-    except: pass
-    pp_columns = ['REDSHIFT', 'RED_CURVE_INDEX', 'EB_V', 'LUMINOSITY', 'AGE', 'METALLICITY', 'SFR', 'STELLARMASS', 'TAU']
+    #decode_column(sample_posterior, 'OBJECT_ID') # Seems like there's no need to decode the OBJECT_ID string anymore
+    pp_columns = ['REDSHIFT', 'RED_CURVE_INDEX', 'EB_V', 'LUMINOSITY', 'SFHAGE', 'SFHTIMESCALE', 'SFHTYPE', 'STELLARMETALLICITY', 'STELLARMASS', 'SFR']
     temp = [Table.from_pandas(sample_posterior[sample_posterior['OBJECT_ID'] == idx][pp_columns]) for idx in tqdm(sample_posterior['OBJECT_ID'].unique())]
     np.save(rp+'pp_data_{}.npy'.format(pf_idx), np.array(temp))
     print('Saved pf_idx {}'.format(pf_idx))
@@ -51,7 +50,7 @@ if __name__ == '__main__':
     pp_index = Table.read(args.pos_path+'Index_File_posterior.fits').to_pandas()
     decode_column(pp_index, 'FILE_NAME')
     pp_index['pp_file'] = [int(s.split('_')[-1].split('.')[0]) for s in pp_index['FILE_NAME']]
-    pp_index['pp_offset'] = np.array([list(np.arange(len(pp_index[pp_index['pp_file'] == idx]))) for idx in np.unique(pp_index['pp_file'])]).flatten()
+    pp_index['pp_offset'] = np.concatenate([list(np.arange(len(pp_index[pp_index['pp_file'] == idx]))) for idx in np.unique(pp_index['pp_file'])])
     pp_index = pp_index.rename(columns = {'OBJECT_ID': 'id'})
     pp_index = pp_index[['id', 'pp_file', 'pp_offset']]
     pp_index['id'] = pp_index['id'].astype('int')
@@ -70,5 +69,6 @@ if __name__ == '__main__':
 
     # Process the files in ||.
     print('Generating the reference sample...')
+    #[generate_pp_file(pos_file, args.pos_path, args.ref_path) for pos_file in posterior_files]
     with ProcessPoolExecutor(max_workers = max_workers) as executor: executor.map(partial(generate_pp_file, pp=args.pos_path, rp=args.ref_path), posterior_files)
     print('Reference sample stored in {0}'.format(args.ref_path))
