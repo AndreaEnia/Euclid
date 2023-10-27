@@ -23,11 +23,15 @@ def generate_pp_file(pos_file, pp, rp):
     print('Processing file {}'.format(pos_file))
     sample_posterior = Table.read(pp+pos_file).to_pandas()
     # --------------
-    # Log M* and SFR ### Those are already logged
+    # Log M* and SFR
     #sample_posterior['STELLARMASS'] = np.log10(sample_posterior['STELLARMASS'])
     #sample_posterior['SFR'] = np.log10(sample_posterior['SFR'])
+    ###  already logged ###
     # --------------
-    #decode_column(sample_posterior, 'OBJECT_ID') # Seems like there's no need to decode the OBJECT_ID string anymore
+    #decode_column(sample_posterior, 'OBJECT_ID')
+    # Seems like there's no need to decode anymore the OBJECT_ID string
+    #try: decode_column(sample_posterior, 'OBJECT_ID')
+    #except: pass
     pp_columns = ['REDSHIFT', 'RED_CURVE_INDEX', 'EB_V', 'LUMINOSITY', 'SFHAGE', 'SFHTIMESCALE', 'SFHTYPE', 'STELLARMETALLICITY', 'STELLARMASS', 'SFR']
     temp = [Table.from_pandas(sample_posterior[sample_posterior['OBJECT_ID'] == idx][pp_columns]) for idx in tqdm(sample_posterior['OBJECT_ID'].unique())]
     np.save(rp+'pp_data_{}.npy'.format(pf_idx), np.array(temp))
